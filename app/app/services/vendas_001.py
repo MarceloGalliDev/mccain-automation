@@ -3,7 +3,7 @@ import ftplib
 import openpyxl
 import pandas as pd
 from datetime import datetime
-from ..connection.config import conn_engine, ConnectionData 
+from app.config import conn_engine, ConnectionData
 
 def vendas_001():
     conn = conn_engine(ConnectionData.DB_CONFIG)
@@ -248,7 +248,7 @@ def vendas_001():
     dataAtual = datetime.now().strftime("%Y-%m-%d")
     nomeArquivo = (f'VENDASDUSNEI001{dataAtual}')
     ws.title = dataAtual
-    local_arquivo = os.path.join(f'C:/Users/Windows/Documents/Python/automacao-mccain/data/{dataAtual}/{nomeArquivo}.xlsx')
+    local_arquivo = os.path.join(f'C:/Users/Windows/Documents/Python/mccain-automation/app/app/data/{dataAtual}/{nomeArquivo}.xlsx')
     wb.save(local_arquivo)
     
     
