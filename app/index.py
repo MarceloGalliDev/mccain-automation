@@ -16,3 +16,6 @@ def log_produtos():
         format='%(asctime)s %(message)s',
         datefmt='%d/%m/%Y %I:%M:%S %p -',
 )
+
+if __name__ == '__main__':
+    log_produtos()

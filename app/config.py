@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #conexão e configurações
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
@@ -31,3 +32,5 @@ def conn_engine(config):
     engine = create_engine(db_url)
     logging.info('Banco de dados conectado!')
     return engine
+
+    

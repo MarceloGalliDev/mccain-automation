@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+
 import os
 import ftplib
 import openpyxl
 import pandas as pd
 from datetime import datetime
-from app.config import conn_engine, ConnectionData
+from config import conn_engine, ConnectionData
 
 def vendas_001():
     conn = conn_engine(ConnectionData.DB_CONFIG)
