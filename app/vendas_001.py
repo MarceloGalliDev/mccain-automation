@@ -1,15 +1,44 @@
-#!/usr/bin/env python3
-
 import os
 import ftplib
 import openpyxl
 import pandas as pd
 from datetime import datetime
-from config import conn_engine, ConnectionData
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import logging
+from config import log_produtos
+
+load_dotenv()
+log_produtos()
+
+DB_CONFIG = {
+    'drivername': os.getenv('DRIVERNAME'),
+    'host': os.getenv('HOST'),
+    'port': os.getenv('PORT'),
+    'database': os.getenv('DATABASE'),
+    'username': os.getenv('USERNAME'),
+    'password': os.getenv('PASSWORD'),
+}
+
+FTP_CONFIG = {
+    'server-ftp': os.getenv('SERVER-FTP'),
+    'user-ftp': os.getenv('USER-FTP'),
+    'password-ftp': os.getenv('PASSWORD-FTP'),
+    'path_clientes': os.getenv('PATH-CLIENTES'),
+    'path_estoque': os.getenv('PATH-ESTOQUE'),
+    'path_produto': os.getenv('PATH-PRODUTO'),
+    'path_vendas': os.getenv('PATH-VENDAS'),
+}
+
+def conn_engine(config):
+    db_url = "{drivername}://{username}:{password}@{host}:{port}/{database}".format(**config)
+    engine = create_engine(db_url)
+    logging.info('Banco de dados conectado!')
+    return engine
 
 def vendas_001():
-    conn = conn_engine(ConnectionData.DB_CONFIG)
-    ftp = ConnectionData.FTP_CONFIG
+    conn = conn_engine(DB_CONFIG)
+    ftp = FTP_CONFIG
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -231,7 +260,17 @@ def vendas_001():
         doc_cod = df.loc[i, "doc_cod"]
         quantity = df.loc[i, "quantity"]
         
-        if doc_cod == '7260' or doc_cod == '7263' or doc_cod == '7262' or doc_cod == '7268' or doc_cod == '7264' or doc_cod == '7269' or doc_cod == '7267' or doc_cod == '7319' or doc_cod == '7318':
+        if (
+            doc_cod == '7260' or 
+            doc_cod == '7263' or 
+            doc_cod == '7262' or 
+            doc_cod == '7268' or 
+            doc_cod == '7264' or 
+            doc_cod == '7269' or 
+            doc_cod == '7267' or 
+            doc_cod == '7319' or 
+            doc_cod == '7318'
+        ):
             quantity = -quantity
         
         amount = str(df.loc[i, "amount"]).replace(',','.')
@@ -250,7 +289,7 @@ def vendas_001():
     dataAtual = datetime.now().strftime("%Y-%m-%d")
     nomeArquivo = (f'VENDASDUSNEI001{dataAtual}')
     ws.title = dataAtual
-    local_arquivo = os.path.join(f'C:/Users/Windows/Documents/Python/mccain-automation/app/app/data/{dataAtual}/{nomeArquivo}.xlsx')
+    local_arquivo = os.path.join(f'C:/Users/Windows/Documents/Python/mccain-automation/app/data/{dataAtual}/{nomeArquivo}.xlsx')
     wb.save(local_arquivo)
     
     
