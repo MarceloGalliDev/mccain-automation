@@ -5,9 +5,10 @@ import pandas as pd
 from ftplib import FTP
 from datetime import datetime
 from dotenv import load_dotenv
-from conn import get_db_engine
+from config import get_db_engine, log_data
 
 load_dotenv()
+log_data()
 
 def vendas():
     FTP_CONFIG = {
@@ -96,28 +97,35 @@ def vendas():
         ws.title = dataAtual
         diretorio = f'C:/Users/Windows/Documents/Python/mccain-automation/app/data/{dataAtual}'
         if not os.path.exists(diretorio):
-            os.mkdir(diretorio, exist_ok=True)
+            os.mkdir(diretorio)
         local_arquivo = os.path.join(
             f'C:/Users/Windows/Documents/Python/mccain-automation/app/data/{dataAtual}/{nomeArquivo}.xlsx')
 
         wb.save(local_arquivo)
 
 
-    # with FTP(FTP_CONFIG['server-ftp']) as ftp:
-    #     ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
+    with FTP(FTP_CONFIG['server-ftp']) as ftp:
+        ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
 
-    #     remote_dir_path = os.path.join(FTP_CONFIG['path_vendas'])
+        remote_dir_path = os.path.join(FTP_CONFIG['path_vendas'])
 
-    #     for arquivos_data in os.listdir(diretorio):
-    #         if 'VENDAS' in arquivos_data:
-    #             file_path = os.path.join(diretorio, arquivos_data)
+        # criando pasta no diretório do FTP
+        # try:
+        #     ftp.mkd(remote_dir_path)
+        #     print(f'Diretório {remote_dir_path} criado!')
+        # except Exception as e:
+        #     print('Não foi possível criar a pasta!')
 
-    #             if os.path.isfile(file_path):
-    #                 with open(local_arquivo, 'rb') as local_file:
-    #                     remote_path = os.path.join(remote_dir_path, arquivos_data)
-    #                     ftp.storbinary(f"STOR {remote_path}", local_file)
-    #             logging.info(
-    #                 f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
+        for arquivos_data in os.listdir(diretorio):
+            if 'VENDAS' in arquivos_data:
+                file_path = os.path.join(diretorio, arquivos_data)
+
+                if os.path.isfile(file_path):
+                    with open(local_arquivo, 'rb') as local_file:
+                        remote_path = os.path.join(remote_dir_path, arquivos_data)
+                        ftp.storbinary(f"STOR {remote_path}", local_file)
+                logging.info(
+                    f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
 if __name__ == "__main__":
   vendas()
