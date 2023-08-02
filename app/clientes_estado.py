@@ -11,7 +11,7 @@ from config import get_db_engine, log_data
 load_dotenv()
 log_data()
 
-def clientes():
+def clientes_estado():
     FTP_CONFIG = {
         'server-ftp': os.getenv('SERVER-FTP'),
         'user-ftp': os.getenv('USER-FTP'),
@@ -153,4 +153,4 @@ def clientes():
             
 
 if __name__ == "__main__":
-    clientes()
+    clientes_estado()

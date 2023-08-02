@@ -3,6 +3,11 @@ from clientes import clientes
 from estoques import estoques
 from produtos import produtos
 from vendas import vendas
+from clientes_estado import clientes_estado 
+from vendas_estado import vendas_estado
+from estoques_estado import estoques_estado
+
+
 import time
 
 import ctypes
@@ -10,7 +15,7 @@ import threading
 
 
 MB_OK = 0x0
-TIMEOUT = 5000
+TIMEOUT = 7000
 
 
 def show_message_box():
@@ -19,13 +24,12 @@ def show_message_box():
 
 def envio_automatico():
     clientes()
-    time.sleep(5)
     estoques()
-    time.sleep(5)
     produtos()
-    time.sleep(5)
     vendas()
-    time.sleep(5)
+    clientes_estado()
+    vendas_estado()
+    estoques_estado()
    
     t = threading.Thread(target=show_message_box)
     t.start

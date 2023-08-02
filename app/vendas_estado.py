@@ -12,7 +12,7 @@ load_dotenv()
 log_data()
 
 
-def vendas():
+def vendas_estado():
     FTP_CONFIG = {
         'server-ftp': os.getenv('SERVER-FTP'),
         'user-ftp': os.getenv('USER-FTP'),
@@ -148,5 +148,5 @@ def vendas():
 
 
 if __name__ == "__main__":
-    vendas()
+    vendas_estado()
   
