@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 import logging
 import openpyxl
@@ -9,6 +10,7 @@ from config import get_db_engine, log_data
 
 load_dotenv()
 log_data()
+
 
 def produtos():
     FTP_CONFIG = {
@@ -53,12 +55,12 @@ def produtos():
         wb = openpyxl.Workbook()
         ws = wb.active
 
-        ws['A1'] = (f'Code')
-        ws['B1'] = (f'Nome/Descrição')
-        ws['C1'] = (f'Quantidade x Peso')
-        ws['D1'] = (f'Embalagem')
-        ws['E1'] = (f'EAN')
-        ws['F1'] = (f'Cod do Fabricante')
+        ws['A1'] = ('Code')
+        ws['B1'] = ('Nome/Descrição')
+        ws['C1'] = ('Quantidade x Peso')
+        ws['D1'] = ('Embalagem')
+        ws['E1'] = ('EAN')
+        ws['F1'] = ('Cod do Fabricante')
         for index, row in df.iterrows():
             codProduto = row["cod_prod"].zfill(5)
             nomeProduto = row["produto"]
@@ -118,5 +120,6 @@ def produtos():
                 logging.info(
                     f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
+
 if __name__ == "__main__":
-  produtos()
+    produtos()

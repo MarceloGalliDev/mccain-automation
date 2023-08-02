@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 import logging
 import openpyxl
@@ -9,6 +10,7 @@ from config import get_db_engine, log_data
 
 load_dotenv()
 log_data()
+
 
 def vendas():
     FTP_CONFIG = {
@@ -65,12 +67,12 @@ def vendas():
 
         df = pd.concat([vendas_query(table, conn, unid_codigo)for table in tables])
 
-        ws['A1'] = (f'systemId')
-        ws['B1'] = (f'Code')
-        ws['C1'] = (f'Quantity')
-        ws['D1'] = (f'Amount')
-        ws['E1'] = (f'Sale Date')
-        ws['F1'] = (f'Transaction ID')
+        ws['A1'] = ('systemId')
+        ws['B1'] = ('Code')
+        ws['C1'] = ('Quantity')
+        ws['D1'] = ('Amount')
+        ws['E1'] = ('Sale Date')
+        ws['F1'] = ('Transaction ID')
         for index, row in df.iterrows():
             systemId = row["cod_clie"]
             code = row["cod_prod"]
@@ -127,6 +129,7 @@ def vendas():
                 logging.info(
                     f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
+
 if __name__ == "__main__":
-  vendas()
+    vendas()
   

@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 import logging
 import openpyxl
@@ -9,6 +10,7 @@ from config import get_db_engine, log_data
 
 load_dotenv()
 log_data()
+
 
 def estoques():
     FTP_CONFIG = {
@@ -29,7 +31,7 @@ def estoques():
     for unid_codigo in unid_codigos:
         query = (f"""
             (
-                SELECT 
+                SELECT
                     prun.prun_estoque1 AS estoque,
                     (prun.prun_estoque1 * prod.prod_pesoliq) AS qtde,
                     prun.prun_unid_codigo AS unidade,
@@ -38,14 +40,14 @@ def estoques():
                     prod.prod_codbarras AS cod_barras,
                     prod.prod_marca AS marca,
                     prod.prod_codigo AS cod_prod
-                FROM produn AS prun 
+                FROM produn AS prun
                 LEFT JOIN produtos AS prod ON prun.prun_prod_codigo = prod.prod_codigo
-                WHERE prun.prun_bloqueado = 'N' 
+                WHERE prun.prun_bloqueado = 'N'
                 AND prun.prun_unid_codigo = '{unid_codigo}'
                 AND prun.prun_ativo = 'S'
                 AND prun.prun_estoque1 > 0
                 AND prod.prod_marca IN ('MCCAIN','MCCAIN RETAIL')
-            )  
+            )
         """)
 
         df = pd.read_sql_query(query, conn)
@@ -54,10 +56,10 @@ def estoques():
         ws = wb.active
 
         dataAtualEstoque = datetime.now().strftime("%Y-%m-%d")
-        ws['A1'] = (f'Code')
-        ws['B1'] = (f'Quantity')
-        ws['C1'] = (f'Stock Date')
-        ws['D1'] = (f'Expiration Date')
+        ws['A1'] = ('Code')
+        ws['B1'] = ('Quantity')
+        ws['C1'] = ('Stock Date')
+        ws['D1'] = ('Expiration Date')
         for index, row in df.iterrows():
             code = row["cod_prod"]
             quantity = row["qtde"]
@@ -83,19 +85,11 @@ def estoques():
 
     with FTP(FTP_CONFIG['server-ftp']) as ftp:
         ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
-
         remote_dir_path = os.path.join(FTP_CONFIG['path_estoque'])
-
-        # try:
-        #     ftp.mkd(remote_dir_path)
-        #     print(f'Diretório {remote_dir_path} criado!')
-        # except Exception as e:
-        #     print('Não foi possível criar a pasta, pode ser que já exista!')
-
+        
         for arquivos_data in os.listdir(diretorio):
             if 'ESTOQUE' in arquivos_data:
                 file_path = os.path.join(diretorio, arquivos_data)
-
                 if os.path.isfile(file_path):
                     with open(local_arquivo, 'rb') as local_file:
                         remote_path = os.path.join(remote_dir_path, arquivos_data)
@@ -103,5 +97,6 @@ def estoques():
                 logging.info(
                     f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
+
 if __name__ == "__main__":
-  estoques()
+    estoques()

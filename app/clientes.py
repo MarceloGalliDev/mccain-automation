@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 import logging
 import openpyxl
@@ -69,15 +70,15 @@ def clientes():
         wb = openpyxl.Workbook()
         ws = wb.active
 
-        ws['A1'] = (f'systemId')
-        ws['B1'] = (f'name')
-        ws['C1'] = (f'address.countryId')
-        ws['D1'] = (f'address.stateId')
-        ws['E1'] = (f'address.city')
-        ws['F1'] = (f'address.postalCode')
-        ws['G1'] = (f'salesman')
-        ws['H1'] = (f'pos.active')
-        ws['I1'] = (f'segmentacion_global')
+        ws['A1'] = ('systemId')
+        ws['B1'] = ('name')
+        ws['C1'] = ('address.countryId')
+        ws['D1'] = ('address.stateId')
+        ws['E1'] = ('address.city')
+        ws['F1'] = ('address.postalCode')
+        ws['G1'] = ('salesman')
+        ws['H1'] = ('pos.active')
+        ws['I1'] = ('segmentacion_global')
         for index, row in df.iterrows():
             systemId = row["clie_codigo"]
             name = row["clie_nome"]
@@ -134,4 +135,4 @@ def clientes():
                     f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
 if __name__ == "__main__":
-  clientes()
+    clientes()
