@@ -25,8 +25,8 @@ def vendas():
         'path_estoque_sp': os.getenv('PATH-ESTOQUE-SP'),
         'path_estoque_pr': os.getenv('PATH-ESTOQUE-PR'),
         'path_vendas': os.getenv('PATH-VENDAS'),
-        'path_vendas_SP': os.getenv('PATH-VENDAS-SP'),
-        'path_vendas_PR': os.getenv('PATH-VENDAS-PR'),
+        'path_vendas_sp': os.getenv('PATH-VENDAS-SP'),
+        'path_vendas_pr': os.getenv('PATH-VENDAS-PR'),
     }
 
     cod_estados = ['PR', 'SP']
@@ -113,21 +113,38 @@ def vendas():
         wb.save(local_arquivo)
 
 
-    # with FTP(FTP_CONFIG['server-ftp']) as ftp:
-    #     ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
+    with FTP(FTP_CONFIG['server-ftp']) as ftp:
+        ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
 
-    #     remote_dir_path = os.path.join(FTP_CONFIG['path_vendas'])
+        remote_dir_path_pr = os.path.join(FTP_CONFIG['path_vendas_pr'])
+        remote_dir_path_sp = os.path.join(FTP_CONFIG['path_vendas_sp'])
 
-    #     for arquivos_data in os.listdir(diretorio):
-    #         if 'VENDAS' in arquivos_data:
-    #             file_path = os.path.join(diretorio, arquivos_data)
+        # try:
+        #     ftp.mkd(remote_dir_path)
+        #     print(f'Diretório {remote_dir_path} criado!')
+        # except Exception as e:
+        #     print('Não foi possível criar a pasta, pode ser que já exista!')
 
-    #             if os.path.isfile(file_path):
-    #                 with open(local_arquivo, 'rb') as local_file:
-    #                     remote_path = os.path.join(remote_dir_path, arquivos_data)
-    #                     ftp.storbinary(f"STOR {remote_path}", local_file)
-    #             logging.info(
-    #                 f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
+        for arquivos_data in os.listdir(diretorio):
+            if 'VENDASDUSNEIPR' in arquivos_data:
+                file_path = os.path.join(diretorio, arquivos_data)
+
+                if os.path.isfile(file_path):
+                    with open(local_arquivo, 'rb') as local_file:
+                        remote_path = os.path.join(remote_dir_path_pr, arquivos_data)
+                        ftp.storbinary(f"STOR {remote_path}", local_file)
+                logging.info(
+                    f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
+                
+            if 'VENDASDUSNEISP' in arquivos_data:
+                file_path = os.path.join(diretorio, arquivos_data)
+
+                if os.path.isfile(file_path):
+                    with open(local_arquivo, 'rb') as local_file:
+                        remote_path = os.path.join(remote_dir_path_sp, arquivos_data)
+                        ftp.storbinary(f"STOR {remote_path}", local_file)
+                logging.info(
+                    f"Arquivo {os.path.basename(arquivos_data)} upload FTP server concluído com sucesso!")
 
 
 if __name__ == "__main__":
