@@ -60,10 +60,11 @@ def clientes():
                 AND clie.clie_unid_codigo = '{unid_codigo}'
                 AND clie.clie_cnpjcpf > '0'
                 AND clie.clie_cepres NOT IN ('')
-                AND clie.clie_dtcad > CURRENT_DATE - INTERVAL '7 DAYS'
+                AND clie.clie_dtcad > '2023-01-01'
                 GROUP BY clie.clie_unid_codigo, clie.clie_codigo, clie.clie_nome, clie.clie_cnpjcpf, clie.clie_razaosocial, clie.clie_endres, clie.clie_endresnumero, clie.clie_bairrores, clie.clie_cepres, clie.clie_muni_codigo_res, muni.muni_codigo, muni.muni_nome, clie.clie_ufexprg, clie.clie_rota_codigo, clie.clie_ramoatividade, clie.clie_vend_codigo, clie.clie_vend_alternativos, vend.vend_nome, clie.clie_dtcad
             )  
         """)
+                # AND clie.clie_dtcad > CURRENT_DATE - INTERVAL '7 DAYS'
 
         df = pd.read_sql_query(query, conn)
 
