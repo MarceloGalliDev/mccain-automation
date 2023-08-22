@@ -2,10 +2,15 @@
 from clientes import clientes
 from estoques import estoques
 from produtos import produtos
-from vendas import vendas
 from clientes_estado import clientes_estado 
-from vendas_estado import vendas_estado
 from estoques_estado import estoques_estado
+from vendas_estado_arquivo_concat_pr import vendas_estado as vendas_estado_arquivo_concat_pr
+from vendas_estado_arquivo_concat_sp import vendas_estado as vendas_estado_arquivo_concat_sp
+from vendas_estado_arquivo_unico_pr import vendas_estado as vendas_estado_arquivo_unico_pr
+from vendas_estado_arquivo_unico_sp import vendas_estado as vendas_estado_arquivo_unico_sp
+from vendas_arquivo_001 import vendas as vendas001
+from vendas_arquivo_002 import vendas as vendas002
+from vendas_arquivo_003 import vendas as vendas003
 
 
 import time
@@ -15,7 +20,7 @@ import threading
 
 
 MB_OK = 0x0
-TIMEOUT = 7000
+TIMEOUT = 10000
 
 
 def show_message_box():
@@ -26,9 +31,14 @@ def envio_automatico():
     clientes()
     estoques()
     produtos()
-    vendas()
+    vendas001()
+    vendas002()
+    vendas003()
     clientes_estado()
-    vendas_estado()
+    vendas_estado_arquivo_concat_pr()
+    vendas_estado_arquivo_concat_sp()
+    vendas_estado_arquivo_unico_pr()
+    vendas_estado_arquivo_unico_sp()
     estoques_estado()
    
     t = threading.Thread(target=show_message_box)

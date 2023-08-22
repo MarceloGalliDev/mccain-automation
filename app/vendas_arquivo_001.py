@@ -29,51 +29,65 @@ def vendas():
         'path_vendas_PR': os.getenv('PATH-VENDAS-PR'),
     }
 
-    unid_codigos = ['001', '002', '003']
 
-    for unid_codigo in unid_codigos:
+    def vendas_query(table_name, conn):
+        query = (f"""
+            (
+                SELECT
+                mprd.mprd_dcto_codigo AS doc_cod, 
+                mprd.mprd_transacao AS transacao,
+                clie.clie_cnpjcpf AS cnpj_cpf,
+                clie.clie_codigo AS cod_clie,
+                mprd.mprd_datamvto AS data,
+                mprd.mprd_numerodcto AS nfe,
+                prod.prod_codbarras AS cod_barras,
+                prod.prod_codigo AS cod_prod,
+                (mprd.mprd_qtde * prod.prod_pesoliq) AS quantity,
+                mprd.mprd_valor AS amount,
+                mprc.mprc_vend_codigo AS cod_vend,
+                SUBSTRING(clie.clie_cepres, 1,5) ||'-'|| SUBSTRING(clie.clie_cepres, 6,3) AS cep
+                FROM {table_name} AS mprd 
+                LEFT JOIN movprodc AS mprc ON mprd.mprd_operacao = mprc.mprc_operacao
+                LEFT JOIN produtos AS prod ON mprd.mprd_prod_codigo = prod.prod_codigo
+                LEFT JOIN clientes AS clie ON mprc.mprc_codentidade = clie.clie_codigo
+                WHERE mprd_status = 'N' 
+                AND mprd_unid_codigo IN ('001')
+                AND prod.prod_marca IN ('MCCAIN','MCCAIN RETAIL')
+                AND mprd.mprd_dcto_codigo IN ('6666','6668','7335','7337','7338','7339','7260','7263','7262','7268','7264','7269', '7267', '7319', '7318')
+            )  
+        """)
+                # AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '8 DAYS'
+        return pd.read_sql_query(query, conn)
 
-        def vendas_query(table_name, conn, unid_codigo):
-            query = (f"""
-                (
-                    SELECT
-                    mprd.mprd_dcto_codigo AS doc_cod, 
-                    mprd.mprd_transacao AS transacao,
-                    clie.clie_cnpjcpf AS cnpj_cpf,
-                    clie.clie_codigo AS cod_clie,
-                    mprd.mprd_datamvto AS data,
-                    mprd.mprd_numerodcto AS nfe,
-                    prod.prod_codbarras AS cod_barras,
-                    prod.prod_codigo AS cod_prod,
-                    (mprd.mprd_qtde * prod.prod_pesoliq) AS quantity,
-                    mprd.mprd_valor AS amount,
-                    mprc.mprc_vend_codigo AS cod_vend,
-                    SUBSTRING(clie.clie_cepres, 1,5) ||'-'|| SUBSTRING(clie.clie_cepres, 6,3) AS cep
-                    FROM {table_name} AS mprd 
-                    LEFT JOIN movprodc AS mprc ON mprd.mprd_operacao = mprc.mprc_operacao
-                    LEFT JOIN produtos AS prod ON mprd.mprd_prod_codigo = prod.prod_codigo
-                    LEFT JOIN clientes AS clie ON mprc.mprc_codentidade = clie.clie_codigo
-                    WHERE mprd_status = 'N' 
-                    AND mprd_unid_codigo IN ('{unid_codigo}')
-                    AND prod.prod_marca IN ('MCCAIN','MCCAIN RETAIL')
-                    AND mprd.mprd_dcto_codigo IN ('6666','6668','7335','7337','7338','7339','7260','7263','7262','7268','7264','7269', '7267', '7319', '7318')
-                )  
-            """)
-                    # AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '8 DAYS'
-            return pd.read_sql_query(query, conn)
 
-        conn = get_db_engine()
-        ftp = FTP_CONFIG
+    conn = get_db_engine()
+    ftp = FTP_CONFIG
 
-        wb = openpyxl.Workbook()
-        ws = wb.active
 
-        tables = [
-            'movprodd0123', 'movprodd0223', 'movprodd0323', 'movprodd0423', 'movprodd0523', 'movprodd0623', 
-            'movprodd0723', 'movprodd0823', 'movprodd0923', 'movprodd1023', 'movprodd1123', 'movprodd1223'
-        ]
+    tables = [
+        'movprodd0123', 
+        'movprodd0223', 
+        'movprodd0323', 
+        'movprodd0423', 
+        'movprodd0523', 
+        'movprodd0623', 
+        'movprodd0723', 
+        'movprodd0823', 
+        # 'movprodd0923', 
+        # 'movprodd1023', 
+        # 'movprodd1123', 
+        # 'movprodd1223'
+    ]
 
-        df = pd.concat([vendas_query(table, conn, unid_codigo)for table in tables])
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    data_frame_total = pd.DataFrame()
+    
+    for table in tables:
+        data_frame = vendas_query(table, conn)
+        print(f'Obtidos {data_frame.shape[0]} registros da tabela {table}.')
+        data_frame_total = pd.concat([data_frame_total, data_frame], ignore_index=True)
+    
 
         ws['A1'] = ('systemId')
         ws['B1'] = ('Code')
@@ -81,7 +95,7 @@ def vendas():
         ws['D1'] = ('Amount')
         ws['E1'] = ('Sale Date')
         ws['F1'] = ('Transaction ID')
-        for index, row in df.iterrows():
+        for index, row in data_frame_total.iterrows():
             systemId = row["cod_clie"]
             code = row["cod_prod"]
             doc_cod = row["doc_cod"]
@@ -103,7 +117,7 @@ def vendas():
             ws.cell(row=index+2, column=6).value = (f'{transactionId}')
 
         dataAtual = datetime.now().strftime("%Y-%m-%d")
-        nomeArquivo = (f'VENDASDUSNEI{unid_codigo}{dataAtual}')
+        nomeArquivo = (f'VENDASDUSNEI001{dataAtual}')
         ws.title = dataAtual
         diretorio = f'C:/Users/Windows/Documents/Python/mccain-automation/app/data/{dataAtual}'
         if not os.path.exists(diretorio):
@@ -113,6 +127,7 @@ def vendas():
 
         wb.save(local_arquivo)
 
+        print("Processamento concluído!")
 
     with FTP(FTP_CONFIG['server-ftp']) as ftp:
         ftp.login(user=FTP_CONFIG['user-ftp'], passwd=FTP_CONFIG['password-ftp'])
@@ -120,7 +135,7 @@ def vendas():
         remote_dir_path = os.path.join(FTP_CONFIG['path_vendas'])
 
         for arquivos_data in os.listdir(diretorio):
-            if 'VENDAS' in arquivos_data:
+            if 'VENDASDUSNEI001' in arquivos_data:
                 file_path = os.path.join(diretorio, arquivos_data)
 
                 if os.path.isfile(file_path):

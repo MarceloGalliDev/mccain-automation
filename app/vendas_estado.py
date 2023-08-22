@@ -29,7 +29,7 @@ def vendas_estado():
         'path_vendas_pr': os.getenv('PATH-VENDAS-PR'),
     }
 
-    cod_estados = ['PR', 'SP']
+    cod_estados = ['PR','SP']
 
     for cod_estado in cod_estados:
 
@@ -37,19 +37,20 @@ def vendas_estado():
             query = (f"""
                 (
                     SELECT
-                    mprd.mprd_dcto_codigo AS doc_cod, 
-                    mprd.mprd_transacao AS transacao,
-                    clie.clie_cnpjcpf AS cnpj_cpf,
-                    clie.clie_codigo AS cod_clie,
-                    mprd.mprd_datamvto AS data,
-                    mprd.mprd_numerodcto AS nfe,
-                    prod.prod_codbarras AS cod_barras,
-                    prod.prod_codigo AS cod_prod,
-                    (mprd.mprd_qtde * prod.prod_pesoliq) AS quantity,
-                    mprd.mprd_valor AS amount,
-                    mprc.mprc_vend_codigo AS cod_vend,
-                    mprc.mprc_uf AS estado,
-                    SUBSTRING(clie.clie_cepres, 1,5) ||'-'|| SUBSTRING(clie.clie_cepres, 6,3) AS cep
+                        mprd.mprd_dcto_codigo AS doc_cod, 
+                        mprd.mprd_transacao AS transacao,
+                        clie.clie_cnpjcpf AS cnpj_cpf,
+                        clie.clie_codigo AS cod_clie,
+                        mprd.mprd_datamvto AS data,
+                        mprd.mprd_numerodcto AS nfe,
+                        prod.prod_codbarras AS cod_barras,
+                        prod.prod_codigo AS cod_prod,
+                        (mprd.mprd_qtde * prod.prod_pesoliq) AS quantity,
+                        mprd.mprd_valor AS amount,
+                        mprc.mprc_vend_codigo AS cod_vend,
+                        mprc.mprc_uf AS estado,
+                        prod.prod_marca AS marca,
+                        SUBSTRING(clie.clie_cepres, 1,5) ||'-'|| SUBSTRING(clie.clie_cepres, 6,3) AS cep
                     FROM {table_name} AS mprd 
                     LEFT JOIN movprodc AS mprc ON mprd.mprd_operacao = mprc.mprc_operacao
                     LEFT JOIN produtos AS prod ON mprd.mprd_prod_codigo = prod.prod_codigo
@@ -58,10 +59,11 @@ def vendas_estado():
                     AND prod.prod_marca IN ('MCCAIN','MCCAIN RETAIL')
                     AND mprd.mprd_dcto_codigo IN ('6666','6668','7335','7337','7338','7339','7260','7263','7262','7268','7264','7269', '7267', '7319', '7318')
                     AND mprc.mprc_uf = '{cod_estado}'
-                    AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '7 DAYS'
                 )  
             """)
+                    # AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '8 DAYS'
             return pd.read_sql_query(query, conn)
+
 
         conn = get_db_engine()
         ftp = FTP_CONFIG
@@ -70,8 +72,18 @@ def vendas_estado():
         ws = wb.active
 
         tables = [
-            'movprodd0123', 'movprodd0223', 'movprodd0323', 'movprodd0423', 'movprodd0523', 'movprodd0623', 
-            'movprodd0723', 'movprodd0823', 'movprodd0923', 'movprodd1023', 'movprodd1123', 'movprodd1223'
+            'movprodd0123', 
+            'movprodd0223', 
+            'movprodd0323', 
+            'movprodd0423', 
+            'movprodd0523', 
+            'movprodd0623', 
+            'movprodd0723', 
+            'movprodd0823', 
+            # 'movprodd0923', 
+            # 'movprodd1023', 
+            # 'movprodd1123', 
+            # 'movprodd1223'
         ]
 
         df = pd.concat([vendas_query(table, conn, cod_estado)for table in tables])
