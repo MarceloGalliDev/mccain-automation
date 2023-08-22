@@ -58,10 +58,9 @@ def vendas_estado():
                     AND prod.prod_marca IN ('MCCAIN','MCCAIN RETAIL')
                     AND mprd.mprd_dcto_codigo IN ('6666','6668','7335','7337','7338','7339','7260','7263','7262','7268','7264','7269', '7267', '7319', '7318')
                     AND mprc.mprc_uf = '{cod_estado}'
-                    AND mprd.mprd_datamvto > '2023-01-01'
+                    AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '7 DAYS'
                 )  
             """)
-                    # AND mprd.mprd_datamvto > CURRENT_DATE - INTERVAL '7 DAYS'
             return pd.read_sql_query(query, conn)
 
         conn = get_db_engine()
@@ -70,8 +69,10 @@ def vendas_estado():
         wb = openpyxl.Workbook()
         ws = wb.active
 
-        tables = ['movprodd0523', 'movprodd0623', 'movprodd0723', 'movprodd0823',
-                'movprodd0923', 'movprodd1023', 'movprodd1123', 'movprodd1223']
+        tables = [
+            'movprodd0123', 'movprodd0223', 'movprodd0323', 'movprodd0423', 'movprodd0523', 'movprodd0623', 
+            'movprodd0723', 'movprodd0823', 'movprodd0923', 'movprodd1023', 'movprodd1123', 'movprodd1223'
+        ]
 
         df = pd.concat([vendas_query(table, conn, cod_estado)for table in tables])
 
